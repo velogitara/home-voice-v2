@@ -99,6 +99,7 @@ export function useMicrophone() {
         streamRef.current?.getTracks().forEach((track) => track.stop());
 
         streamRef.current = null;
+        setStream(null);
         setStatus("idle");
         setVolume(0);
     };
@@ -117,7 +118,6 @@ export function useMicrophone() {
 
             streamRef.current?.getTracks().forEach((track) => track.stop());
             streamRef.current = null;
-            setStream(null);
         };
     }, []);
 
