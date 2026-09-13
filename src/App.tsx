@@ -1,18 +1,12 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import { useMicrophone } from "./hooks/useMicrophone";
-import { useRealtimeSession } from "./hooks/useRealtimeSession";
 import { StatusBadge } from "./components/StatusBadge";
 import { SessionButton } from "./components/SessionButton";
 import { VolumeMeter } from "./components/VolumeMeter";
 function App() {
     const { status, errorMessage, volume, stream, toggleMicrophone } =
         useMicrophone();
-    const {
-        status: realtimeStatus,
-        errorMessage: realtimeError,
-        audioRef,
-    } = useRealtimeSession(stream);
 
     const isConnected = status === "connected";
     const isError = status === "error";
@@ -65,18 +59,6 @@ function App() {
                     <p className="note">
                         Audio tracks: {stream?.getAudioTracks().length ?? 0}
                     </p>
-                    <audio
-                        ref={audioRef}
-                        autoPlay
-                        controls
-                        aria-label="Assistant audio"
-                    />
-
-                    <p className="note">Realtime: {realtimeStatus}</p>
-
-                    {realtimeError && (
-                        <p className="note note--error">{realtimeError}</p>
-                    )}
                 </div>
 
                 <VolumeMeter volume={volume} />

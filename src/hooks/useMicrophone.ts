@@ -5,6 +5,7 @@ export function useMicrophone() {
     const [errorMessage, setErrorMessage] = useState("");
     const [status, setStatus] = useState<VoiceStatus>("idle");
     const [volume, setVolume] = useState(0);
+    const [stream, setStream] = useState<MediaStream | null>(null);
 
     const audioContextRef = useRef<AudioContext | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
@@ -68,13 +69,23 @@ export function useMicrophone() {
         setErrorMessage("");
 
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
+            const microphoneStream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
             });
-            streamRef.current = stream;
-            await startVolumeMonitoring(stream);
+            streamRef.current = microphoneStream;
+            setStream(microphoneStream);
+            await startVolumeMonitoring(microphoneStream);
             setStatus("connected");
         } catch (error) {
+            // console.error("Error accessing microphone:", error);
+            // setStatus("error");
+            // setErrorMessage(
+            //     "Microphone access was denied or unavailable. Please check your browser settings and try again.",
+            // );
+            streamRef.current?.getTracks().forEach((track) => track.stop());
+            streamRef.current = null;
+            setStream(null);
+
             console.error("Error accessing microphone:", error);
             setStatus("error");
             setErrorMessage(
@@ -102,9 +113,11 @@ export function useMicrophone() {
 
     useEffect(() => {
         return () => {
-            stopVolumeMonitoring;
+            stopVolumeMonitoring();
 
             streamRef.current?.getTracks().forEach((track) => track.stop());
+            streamRef.current = null;
+            setStream(null);
         };
     }, []);
 
@@ -112,7 +125,7 @@ export function useMicrophone() {
         status,
         errorMessage,
         volume,
-        stream: streamRef.current,
+        stream,
         toggleMicrophone,
     };
 }
