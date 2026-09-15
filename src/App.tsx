@@ -4,9 +4,24 @@ import { useMicrophone } from "./hooks/useMicrophone";
 import { StatusBadge } from "./components/StatusBadge";
 import { SessionButton } from "./components/SessionButton";
 import { VolumeMeter } from "./components/VolumeMeter";
+import { useVoiceRecorder } from "./hooks/useVoiceRecorder";
 function App() {
     const { status, errorMessage, volume, stream, toggleMicrophone } =
         useMicrophone();
+    const {
+        status: recorderStatus,
+        errorMessage: recorderError,
+        transcript,
+        answer,
+        toggleRecording,
+    } = useVoiceRecorder(stream);
+
+    const recordButtonLabel =
+        recorderStatus === "recording"
+            ? "Stop recording"
+            : recorderStatus === "processing"
+              ? "Processing..."
+              : "Record voice";
 
     const isConnected = status === "connected";
     const isError = status === "error";
@@ -67,7 +82,28 @@ function App() {
                         status={status}
                         onToggle={toggleMicrophone}
                     />
+                    <button
+                        type="button"
+                        className="start-button"
+                        onClick={toggleRecording}
+                        disabled={
+                            recorderStatus === "processing" ||
+                            (!stream && recorderStatus !== "recording")
+                        }
+                    >
+                        <span>
+                            {recorderStatus === "recording" ? "■" : "▶"}
+                        </span>
+                        {recordButtonLabel}
+                    </button>
                 </div>
+                {transcript && <p className="note">You: {transcript}</p>}
+
+                {answer && <p className="note">Assistant: {answer}</p>}
+
+                {recorderError && (
+                    <p className="note note--error">{recorderError}</p>
+                )}
                 <p className={`note ${isError ? "note--error" : ""}`}>
                     {errorMessage ||
                         (isConnected
