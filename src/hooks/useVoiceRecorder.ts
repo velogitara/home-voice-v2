@@ -140,5 +140,7 @@ export function useVoiceRecorder(stream: MediaStream | null) {
         transcript,
         answer,
         toggleRecording,
+        startRecording,
+        stopRecording,
     };
 }

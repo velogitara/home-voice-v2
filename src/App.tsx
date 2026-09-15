@@ -5,6 +5,7 @@ import { StatusBadge } from "./components/StatusBadge";
 import { SessionButton } from "./components/SessionButton";
 import { VolumeMeter } from "./components/VolumeMeter";
 import { useVoiceRecorder } from "./hooks/useVoiceRecorder";
+import { useSilenceDetection } from "./hooks/useSilenceDetection";
 function App() {
     const { status, errorMessage, volume, stream, toggleMicrophone } =
         useMicrophone();
@@ -14,7 +15,9 @@ function App() {
         transcript,
         answer,
         toggleRecording,
+        stopRecording,
     } = useVoiceRecorder(stream);
+    useSilenceDetection(stream, recorderStatus === "recording", stopRecording);
 
     const recordButtonLabel =
         recorderStatus === "recording"
